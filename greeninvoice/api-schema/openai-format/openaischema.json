@@ -1,0 +1,530 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Green Invoice Public API",
+    "version": "1.0.0",
+    "description": "Green Invoice API for managing authentication, businesses, clients, invoices, and payments."
+  },
+  "servers": [
+    {
+      "url": "https://api.greeninvoice.co.il/api/v1",
+      "description": "Production"
+    },
+    {
+      "url": "https://sandbox.d.greeninvoice.co.il/api/v1",
+      "description": "Sandbox for testing"
+    }
+  ],
+  "paths": {
+    "/account/token": {
+      "post": {
+        "operationId": "getJwtToken",
+        "summary": "Get JWT token using API key and secret",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": { "type": "string" },
+                  "secret": { "type": "string" }
+                },
+                "required": ["id", "secret"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful token",
+            "headers": {
+              "X-Authorization-Bearer": {
+                "description": "JWT token returned in header",
+                "schema": { "type": "string" }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "token": { "type": "string" },
+                    "expires": { "type": "integer" }
+                  }
+                }
+              }
+            }
+          },
+          "401": { "description": "Unauthorized" }
+        }
+      }
+    },
+    "/account/password": {
+      "post": {
+        "operationId": "resetPassword",
+        "summary": "Send password reset email",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": { "type": "string", "format": "email" }
+                },
+                "required": ["email"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Email sent" },
+          "400": { "description": "Invalid email" }
+        }
+      }
+    },
+    "/businesses": {
+      "get": {
+        "operationId": "getBusinesses",
+        "summary": "Get all businesses",
+        "responses": {
+          "200": {
+            "description": "List of businesses",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": { "type": "string" },
+                      "name": { "type": "string" },
+                      "city": { "type": "string" },
+                      "taxId": { "type": "string" }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [{ "bearerAuth": [] }]
+      },
+      "post": {
+        "operationId": "createBusiness",
+        "summary": "Create a new business",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "taxId": { "type": "string" },
+                  "type": { "type": "integer" },
+                  "name": { "type": "string" },
+                  "nameEn": { "type": "string" },
+                  "title": { "type": "string" },
+                  "titleEn": { "type": "string" },
+                  "address": { "type": "string" },
+                  "city": { "type": "string" },
+                  "phone": { "type": "string" }
+                },
+                "required": ["taxId", "type", "name"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Business created" }
+        },
+        "security": [{ "bearerAuth": [] }]
+      },
+      "put": {
+        "operationId": "updateBusiness",
+        "summary": "Update a business",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": { "type": "string" },
+                  "category": { "type": "integer" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Business updated" }
+        },
+        "security": [{ "bearerAuth": [] }]
+      }
+    },
+    "/clients": {
+      "post": {
+        "operationId": "addClient",
+        "summary": "Add a new client",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": { "type": "string" },
+                  "emails": {
+                    "type": "array",
+                    "items": { "type": "string", "format": "email" }
+                  },
+                  "paymentTerms": { "type": "integer" },
+                  "taxId": { "type": "string" },
+                  "address": { "type": "string" },
+                  "city": { "type": "string" },
+                  "zip": { "type": "string" },
+                  "country": { "type": "string" },
+                  "accountingKey": { "type": "string" },
+                  "category": { "type": "integer" },
+                  "subCategory": { "type": "integer" }
+                },
+                "required": ["name", "taxId"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Client created" }
+        },
+        "security": [{ "bearerAuth": [] }]
+      }
+    },
+    "/clients/{id}": {
+      "get": {
+        "operationId": "getClient",
+        "summary": "Get a client by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Client data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": { "type": "string" },
+                    "name": { "type": "string" },
+                    "taxId": { "type": "string" },
+                    "emails": {
+                      "type": "array",
+                      "items": { "type": "string", "format": "email" }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [{ "bearerAuth": [] }]
+      }
+    },
+    "/clients/search": {
+      "post": {
+        "operationId": "searchClients",
+        "summary": "Search clients",
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "page": { "type": "integer" },
+                  "active": { "type": "boolean" },
+                  "name": { "type": "string" },
+                  "email": { "type": "string" },
+                  "contactPerson": { "type": "string" },
+                  "labels": {
+                    "type": "array",
+                    "items": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Client search results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": { "type": "string" },
+                          "name": { "type": "string" }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [{ "bearerAuth": [] }]
+      }
+    },
+    "/documents": {
+      "post": {
+        "operationId": "createDocument",
+        "summary": "Create a new document (e.g. invoice)",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "type": { "type": "integer" },
+                  "client": {
+                    "type": "object",
+                    "properties": {
+                      "id": { "type": "string" }
+                    },
+                    "required": ["id"]
+                  },
+                  "items": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "description": { "type": "string" },
+                        "quantity": { "type": "number" },
+                        "price": { "type": "number" },
+                        "vatType": { "type": "integer" }
+                      },
+                      "required": ["description", "quantity", "price"]
+                    }
+                  },
+                  "payment": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "type": { "type": "integer" },
+                        "amount": { "type": "number" }
+                      }
+                    }
+                  }
+                },
+                "required": ["type", "client", "items"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Document created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": { "type": "string" },
+                    "documentId": { "type": "integer" },
+                    "number": { "type": "integer" }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [{ "bearerAuth": [] }]
+      }
+    },
+    "/documents/{id}": {
+      "get": {
+        "operationId": "getDocument",
+        "summary": "Get a document by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Document details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": { "type": "string" },
+                    "number": { "type": "integer" },
+                    "type": { "type": "integer" },
+                    "signed": { "type": "boolean" },
+                    "url": {
+                      "type": "object",
+                      "properties": {
+                        "origin": { "type": "string", "format": "uri" },
+                        "he": { "type": "string", "format": "uri" },
+                        "en": { "type": "string", "format": "uri" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [{ "bearerAuth": [] }]
+      }
+    },
+    "/documents/search": {
+      "post": {
+        "operationId": "searchDocuments",
+        "summary": "Search documents with filters",
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "page": { "type": "integer" },
+                  "pageSize": { "type": "integer" },
+                  "number": { "type": "integer" },
+                  "type": { "type": "integer" },
+                  "status": {
+                    "type": "array",
+                    "items": { "type": "integer" }
+                  },
+                  "paymentType": {
+                    "type": "array",
+                    "items": { "type": "integer" }
+                  },
+                  "fromDate": { "type": "string", "format": "date" },
+                  "toDate": { "type": "string", "format": "date" },
+                  "clientId": { "type": "string" },
+                  "clientName": { "type": "string" },
+                  "description": { "type": "string" },
+                  "download": { "type": "boolean" },
+                  "sort": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Document search results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": { "type": "object" }
+                    },
+                    "total": { "type": "integer" }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [{ "bearerAuth": [] }]
+      }
+    },
+    "/documents/payments/search": {
+      "post": {
+        "operationId": "searchPayments",
+        "summary": "Search payments in documents",
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "page": { "type": "integer", "default": 1 },
+                  "pageSize": { "type": "integer", "default": 20 },
+                  "type": {
+                    "type": "array",
+                    "items": { "type": "integer" }
+                  },
+                  "status": {
+                    "type": "array",
+                    "items": { "type": "integer" }
+                  },
+                  "fromDate": { "type": "string", "format": "date" },
+                  "toDate": { "type": "string", "format": "date" },
+                  "documentId": { "type": "string" },
+                  "clientId": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Payment search results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": { "type": "string" },
+                          "type": { "type": "integer" },
+                          "number": { "type": "integer" },
+                          "amount": { "type": "number" },
+                          "currency": { "type": "string" },
+                          "documentDate": { "type": "string", "format": "date" },
+                          "status": { "type": "integer" }
+                        }
+                      }
+                    },
+                    "total": { "type": "integer" }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [{ "bearerAuth": [] }]
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    }
+  }
+}
