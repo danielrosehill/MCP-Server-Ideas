@@ -7,7 +7,6 @@ This repository serves as a holding space for plans, work in progress, and notes
 | Service | Description | Status |
 |---------|-------------|--------|
 | [Green Invoice](greeninvoice.md) | Integration with Green Invoice, a popular invoicing platform in Israel with a public API | Planning |
-| [Homebox](homebox.md) | Integration with Homebox, a home inventory system with OpenAPI compliant manifest | Planning |
 
 ## Purpose
 
@@ -22,3 +21,7 @@ The Model Context Protocol (MCP) enables communication between AI systems and ex
 - Domain-specific knowledge and functionality
 
 Feel free to explore the individual service documents for more details on each implementation plan.
+
+## Related
+
+- [MCP Projects Index](https://github.com/danielrosehill/MCP-Projects-Index) - Index of my MCP server implementations
